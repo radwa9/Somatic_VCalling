@@ -14,4 +14,3 @@ This project uses several third-party tools:
 - **SAMtools**: Licensed under the [MIT License](https://opensource.org/licenses/MIT).
 - **Fastp**: Licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
-https://github.com/radwa9/Somatic_VCalling/blob/main/S_VC_pipeline/pipelineforSVC.png 
