@@ -1,5 +1,5 @@
 # Somatic_VCalling
-
+The aim of this project is identifying the somatic variants using Mutect2 following the pipeline below
 ![Alt Text](https://github.com/radwa9/Somatic_VCalling/blob/main/S_VC_pipeline/pipelineforSVC.png)
 
 ## License
