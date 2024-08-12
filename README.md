@@ -5,11 +5,11 @@ This project is licensed under the GNU General Public License v3.0. See the [LIC
 
 ## Third-Party Software Licenses
 
-This project uses several third-party tools. Below are the licenses for these tools:
+This project uses several third-party tools:
 
-- **GATK4**: BSD 3-Clause License (see `THIRD_PARTY_LICENSES` for details)
-- **BWA**: GNU General Public License v3.0 (GPLv3)
-- **HISAT2**: GNU General Public License v3.0 (GPLv3)
-- **Picard Tools**: MIT License
-- **SAMtools**: MIT License
-- **Fastp**: MIT License
+- **GATK4**: Licensed under the [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause).
+- **BWA**: Licensed under the [GNU General Public License v3.0 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html).
+- **HISAT2**: Licensed under the [GNU General Public License v3.0 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html).
+- **Picard Tools**: Licensed under the [MIT License](https://opensource.org/licenses/MIT).
+- **SAMtools**: Licensed under the [MIT License](https://opensource.org/licenses/MIT).
+- **Fastp**: Licensed under the [MIT License](https://opensource.org/licenses/MIT).
