@@ -1,1 +1,68 @@
+#Environment Activation
 
+conda create -n gatk4 -c conda-forge -c bioconda gatk4
+conda gatk4
+
+#Preprocessing of Data
+
+fastp -i WESRead_1.fastq.gz -I WESRead_2.fastq.gz -o WESRead_1_filtered.fq -O WESRead_2_filtered.fq
+
+#BWA 
+#index downloaded genome with bwa
+
+bwa index -p bwa_index_ref ./resources_broad_hg38_v0_Homo_sapiens_assembly38.fasta 
+
+#bwa alignment
+
+picard_path=$CONDA_PREFIX/share/picard-*
+time bwa mem -M -t 7  ./bwa_index_ref WESRead_1_filtered.fq WESRead_2_filtered.fq -O /dev/stdout | java -Xmx8g -jar $picard_path/picard.jar  SamFormatConverter I=/dev/stdin O=WES.bam
+
+#hisat2
+
+#hisat2_indexing
+
+hisat2-build resources_broad_hg38_v0_Homo_sapiens_assembly38.fasta genome
+hisat2 -x genome -1 RNAseqRead_1_filtered.fq -2 RNAseqRead_2_filtered.fq -S RNAseq.sam
+java -Xmx8g -jar $picard_path/picard.jar SamFormatConverter -I RNAseq.sam -O RNAseq.bam
+
+#post alignment processing for both RNA-seq and WES data
+#add RG (SMRG, PLRG)
+#change ID and SM
+picard_path=$CONDA_PREFIX/share/picard-*
+
+java -jar $picard_path/picard.jar AddOrReplaceReadGroups \
+     I=WES.bam \
+     O=WES.RG.bam \
+     RGPL=illumina \
+     RGID=ID_WES \
+     RGLB=lib1 \
+     RGPU=unit1 \
+     RGSM=WES
+#sorting
+     
+picard_path=$CONDA_PREFIX/share/picard-*
+java -Xmx8g -jar $picard_path/picard.jar SortSam \
+	I=WES.RG.bam \
+	O=WES.RG.sorted.bam \
+	SORT_ORDER=coordinate
+
+#marking duplicates
+picard_path=$CONDA_PREFIX/share/picard-*
+java -Xmx8g -jar $picard_path/picard.jar MarkDuplicates I=WES.RG.sorted.bam O=WES.RG.sorted.marked.bam M=WES_marked_dup_metrics.txt 
+
+#indexing by samtools index
+
+samtools index WES.RG.sorted.marked.bam 
+
+## mutect tumor only for RNA seq data
+ 
+ gatk --java-options "-Xmx16G" Mutect2 \
+  -R resources_broad_hg38_v0_Homo_sapiens_assembly38.fasta \
+  -I RNAseq.RGG.sorted.marked.bam \
+  --germline-resource somatic-hg38_af-only-gnomad.hg38.vcf.gz \
+  --panel-of-normals somatic-hg38_1000g_pon.hg38.vcf.gz \
+  -O RNAseq.vcf.gz
+
+ 
+##mutect tumor/normal mode 
+gatk --java-options "-Xmx16g" Mutect2 --native-pair-hmm-threads 6 -R resources_broad_hg38_v0_Homo_sapiens_assembly38.fasta    -I WESTumor.RGG.sorted.marked.bam  -I WESnormal.RGG.sorted.marked.bam  -normal WESnormal --germline-resource somatic-hg38_af-only-gnomad.hg38.vcf.gz  --panel-of-normals somatic-hg38_1000g_pon.hg38.vcf.gz -O somaticWESTumor_Normal.vcf.gz
